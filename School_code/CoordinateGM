@@ -1,0 +1,76 @@
+import numpy as np
+import time
+from scipy.sparse import csr_matrix
+from random import randint
+
+starttime = time.time()
+prograph = open('probability graph.txt')
+
+def read(graph):  # matrix reading
+    global n
+    n = int(graph.readline())  # n - length
+    data = [[] for i in range(n)]
+    for i in range(n):
+        data[i] = list(map(float, graph.readline().split()))
+        data[i][i] -= 1
+    data = np.array(data)
+    data = data.T
+    ones = np.array([1 / n] * n)
+    data = np.row_stack((data, ones))
+    return data
+
+def norma(vector):  # 2-norma
+    return np.linalg.norm(vector, 2)
+
+def f(Ax):  # f(x) - permanent function
+    return 0.5 * norma(Ax - b) ** 2
+
+def grad(x):  # return gradient of f(x) = 0.5 * norma(A * x) ** 2
+    return np.dot(A.T, np.dot(A, x) - b)
+
+def f_(L, gradx, fx):  # f(x) - inspection function
+    return fx - (gradx) ** 2 / (2 * L)
+
+def main():
+    global A, n, x, b
+    A = read(prograph)  # probability graph (matrix)
+    prograph.close()
+    b = np.array([0.0] * (n + 1))
+    b[-1] = 1.0
+    b /= n
+    x = np.array([1.0] * n)  # PageRank vector
+    x = x / n
+    EPS = 10 ** (-5)  # accuracy
+    k = 1
+    m = 1000
+    L = [1] * n
+    firstage = time.time()
+    print(firstage - starttime)
+    counted_Ax = A.dot(x)
+    c_Ax_old = counted_Ax.copy()
+    fx = f(counted_Ax)
+    while k % m != 0 or f(counted_Ax) > EPS:
+        rand = randint(0, n - 1)
+        rgrad = np.dot(A[:,rand], c_Ax_old - b)
+        counted_Ax = c_Ax_old - rgrad * A[:,rand] / L[rand]
+        xnew = x[rand] - rgrad / L[rand]
+        while f_(L[rand], rgrad, fx) <= f(counted_Ax):
+            #print(L[rand], f_(L[rand], rgrad, fx), f(counted_Ax))
+            L[rand] *= 2
+            xnew = x[rand] - rgrad / L[rand]
+            counted_Ax = c_Ax_old - rgrad * A[:,rand] / L[rand]
+            #print(L[rand])
+        #print(counted_Ax)
+        #print(L)
+        x[rand] = xnew
+        c_Ax_old = counted_Ax
+        fx = f(c_Ax_old)
+        L[rand] /= 2
+        k += 1
+    print(f(counted_Ax))
+    print(x.sum())
+    counted_Ax = counted_Ax / x.sum()
+    print(f(counted_Ax))
+    print(time.time() - firstage)
+
+main()
