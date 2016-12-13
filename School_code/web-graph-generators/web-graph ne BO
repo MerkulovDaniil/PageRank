@@ -1,0 +1,41 @@
+import numpy as np
+
+
+a = 1
+p = []
+V = 10
+m = 5
+graph = np.zeros(V**2)
+graph = graph.reshape(V,V)
+
+Degrees = []
+
+graph[0,0] = True
+for x in range(V):
+    Degrees.append(0)
+    for s in range(len(p)):
+        p[s] = (Degrees[s] + a - 1)/(a*len(p) + len(p) + a)
+    p.append(a / (a*len(p) + len(p)  + a))
+    u = np.random.choice(len(p), 1, p)
+    graph[len(p) - 1, u] = True
+    Degrees[u] += 1
+    Degrees[len(p) - 1] += 1
+    
+New_Graph = np.zeros((V // m)**2)
+New_Graph = New_Graph.reshape(V//m, V//m)
+for x in range(V):
+    for y in range(x+1):
+        New_Graph[x//m, y//m] += int(graph[x,y])
+        if (x//m != y//m): 
+            New_Graph[y//m, x//m] += int(graph[x,y])
+        
+
+    
+    
+f = open('Ball-Riordan.txt','w')
+f.write(str(V//m) + '\n')
+for x in range(V//m):
+    for y in range(V//m):
+        f.write(str(New_Graph[x,y]) + ' ')
+
+f.close()

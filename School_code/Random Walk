@@ -1,0 +1,69 @@
+import numpy as np
+from scipy.sparse import csr_matrix
+from random import randint
+import time
+
+prograph = open('probability graph.txt')
+inbox = open('inbox_data.txt')
+startime = time.time
+
+def read_matrix(graph): #matrix reading
+    global n
+    n = int(graph.readline()) #n - length
+    data = [[] for i in range(n)]
+    for i in range(n):
+        data[i] = list(map(float, graph.readline().split()))
+        data[i][i] -= 1
+    data = np.array(data)
+    data = data.T
+    data = csr_matrix(data)
+    return data
+
+def read_inbox(graph):
+    global n
+    n = int(graph.readline())
+    data = [[] for i in range(n)]
+    for i in range(n):
+        data[i] = list(map(float, graph.readline().split()))
+    return data
+
+def norma(vector):
+    return np.linalg.norm(vector, 2)
+
+def f(x):
+    return 0.5 * norma(A.dot(x)) ** 2
+
+def main():
+    global A, n, x
+    A = read_matrix(prograph)
+    data = read_inbox(inbox)
+    x = np.array([0] * n)
+    EPS = 10 ** -4
+    DELTA = 0.3    # stability factor
+    stand = 0
+    m = 1000
+    firstage = time.time()
+    rand = randint(0, len(data[stand]) - 1)
+    stand = int(data[stand][rand])
+    x[stand] += 1.0
+    k = 1
+    print(f(x))
+    while  k % m != 0 or f(x / k) > EPS:
+        tobeornottobe = randint(0, 1 // EPS)
+        if tobeornottobe > DELTA // EPS:
+            stand = int(data[stand][randint(0, len(data[stand]) - 1])    # adjacent vertex
+        else:
+            stand = randint(0, n - 1)    # all vertex
+        k += 1
+        x[stand] += 1.0
+        #print(f(x) > EPS, k)
+
+    x[stand] += 1
+    x = x / k
+    print(k)
+    print(f(x))
+    print(time.time() - firstage)
+main()
+
+
+

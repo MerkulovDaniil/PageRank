@@ -1,0 +1,77 @@
+import numpy as np
+import time
+from scipy.sparse import csr_matrix
+
+prograph = open('probability graph.txt')
+starttime = time.time()
+
+def read(graph): #matrix reading
+    global n
+    n = int(graph.readline()) #n - length
+    data = [[] for i in range(n)]
+    for i in range(n):
+        data[i] = list(map(float, graph.readline().split()))
+        data[i][i] -= 1
+    data = np.array(data)
+    data = data.T
+    ones = np.array([1 / n] * n)
+    data = np.row_stack((data, ones))
+    data = csr_matrix(data)
+    return data
+
+def norma(vector): #2-norma
+    return np.linalg.norm(vector, 2)
+
+def f(x): #f(x) - permanent function
+    return 0.5 * norma(A.T.dot(x)) ** 2 - x[-1]
+
+def grad(x): #return gradient of f(x) = 0.5 * norma(A * x) ** 2
+    return A.dot(A.T.dot(x)) - b
+
+def f_(xnew, x, L, gradi): #f(x) - inspection function
+    return f(x) + np.dot(gradi, xnew - x) + (L * norma(xnew - x) ** 2 / 2)
+
+def main():
+    global A, n, x, b
+    A = read(prograph)
+    k = 0
+    b = np.array([0] * (n + 1))
+    b[-1] = 1.0
+    b = b / n
+    x = np.array([0] * (n + 1))                 #PageRank vector
+    x[0] = 1.0
+    EPS = 10 ** (-7)                      #accuracy
+    L = 10
+    firstage = time.time()
+    print(firstage - starttime)
+    y = x.copy()
+    z = x.copy()
+    w = A.T.dot(x)
+    ynew = (2 * z + k * x) / (k + 2)
+    grady = grad(ynew)
+    xnew = ynew - grady / L
+    znew = z - (k + 2) * grady / (2 * L)
+    k += 1
+    print(0.5 * norma(A.dot(w) - b) ** 2)
+    while 0.5 * norma(grad(x)) ** 2 > EPS:
+        while f_(xnew, ynew, L, grady) < f(xnew):
+            L *= 2
+            grady = grad(ynew)
+            xnew = ynew - grady / L
+            znew = z - (k + 2) * grady / (2 * L)
+        x, y, z = xnew, ynew, znew
+        grady = grad(ynew)
+        L /= 2
+        w += 2 * (k + 2) * A.T.dot(y)
+        k += 1
+        ynew = (2 * z + k * x) / (k + 2)
+        xnew = ynew - grady / L
+        znew = z - (k + 2) * grady / (2 * L)
+    x = w / (k * (k + 3))
+    print(0.5 * norma(A.dot(x) - b) ** 2)
+    print(x.sum())
+    x = x / x.sum()
+    print(0.5 * norma(A.dot(x) - b) ** 2)
+    print(time.time() - firstage)
+
+main()

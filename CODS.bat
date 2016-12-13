@@ -1,0 +1,1 @@
+jupyter notebook --notebook-dir='C:\\Users\\brati\\Desktop\\MEGA\\Bit\\PageRank'
